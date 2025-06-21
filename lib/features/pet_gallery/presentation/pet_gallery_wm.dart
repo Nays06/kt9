@@ -12,12 +12,17 @@ enum FilterType { all, dogs, cats, favorites }
 PetGalleryWM defaultWidgetModelFactory(BuildContext context) {
   final appScope = AppScope.of(context);
   return PetGalleryWM(
+    Model(),
     appScope.getPetsUseCase,
     appScope.toggleFavoriteUseCase,
   );
 }
 
-class PetGalleryWM extends WidgetModel<PetGalleryScreen, void> {
+class Model extends ElementaryModel {
+  Model() : super();
+}
+
+class PetGalleryWM extends WidgetModel<PetGalleryScreen, Model> {
   final GetPetsUseCase _getPetsUseCase;
   final ToggleFavoriteUseCase _toggleFavoriteUseCase;
 
@@ -29,7 +34,11 @@ class PetGalleryWM extends WidgetModel<PetGalleryScreen, void> {
   EntityStateNotifier<List<Pet>> get petsState => _petsState;
   ValueNotifier<FilterType> get selectedFilter => _selectedFilter;
 
-  PetGalleryWM(this._getPetsUseCase, this._toggleFavoriteUseCase);
+  PetGalleryWM(
+    super.model,
+    this._getPetsUseCase,
+    this._toggleFavoriteUseCase,
+  );
 
   @override
   void initWidgetModel() {
@@ -55,7 +64,7 @@ class PetGalleryWM extends WidgetModel<PetGalleryScreen, void> {
       _allPets = pets;
       _applyFilter();
     } catch (error) {
-      _petsState.error(error);
+      _petsState.error(error is Exception ? error : Exception(error.toString()));
     }
   }
 

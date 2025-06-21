@@ -1,8 +1,10 @@
 import 'package:elementary/elementary.dart';
+import 'package:elementary_helper/elementary_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:kt9/features/pet_gallery/presentation/pet_gallery_wm.dart';
 import 'package:kt9/features/pet_gallery/presentation/widgets/pet_card.dart';
 import 'package:kt9/features/pet_gallery/presentation/widgets/filter_chip_widget.dart';
+import 'package:kt9/features/pet_gallery/domain/entities/pet.dart';
 
 class PetGalleryScreen extends ElementaryWidget<PetGalleryWM> {
   const PetGalleryScreen({super.key}) : super(defaultWidgetModelFactory);
@@ -22,48 +24,51 @@ class PetGalleryScreen extends ElementaryWidget<PetGalleryWM> {
       ),
       body: Column(
         children: [
-          // Фильтры
           Container(
             padding: const EdgeInsets.all(16),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  FilterChipWidget(
-                    label: 'All',
-                    isSelected: wm.selectedFilter.value == FilterType.all,
-                    onTap: () => wm.setFilter(FilterType.all),
-                  ),
-                  const SizedBox(width: 8),
-                  FilterChipWidget(
-                    label: 'Dogs',
-                    isSelected: wm.selectedFilter.value == FilterType.dogs,
-                    onTap: () => wm.setFilter(FilterType.dogs),
-                  ),
-                  const SizedBox(width: 8),
-                  FilterChipWidget(
-                    label: 'Cats',
-                    isSelected: wm.selectedFilter.value == FilterType.cats,
-                    onTap: () => wm.setFilter(FilterType.cats),
-                  ),
-                  const SizedBox(width: 8),
-                  FilterChipWidget(
-                    label: 'Favorites',
-                    isSelected: wm.selectedFilter.value == FilterType.favorites,
-                    onTap: () => wm.setFilter(FilterType.favorites),
-                  ),
-                ],
+              child: ValueListenableBuilder<FilterType>(
+                valueListenable: wm.selectedFilter,
+                builder: (context, filter, _) {
+                  return Row(
+                    children: [
+                      FilterChipWidget(
+                        label: 'All',
+                        isSelected: filter == FilterType.all,
+                        onTap: () => wm.setFilter(FilterType.all),
+                      ),
+                      const SizedBox(width: 8),
+                      FilterChipWidget(
+                        label: 'Dogs',
+                        isSelected: filter == FilterType.dogs,
+                        onTap: () => wm.setFilter(FilterType.dogs),
+                      ),
+                      const SizedBox(width: 8),
+                      FilterChipWidget(
+                        label: 'Cats',
+                        isSelected: filter == FilterType.cats,
+                        onTap: () => wm.setFilter(FilterType.cats),
+                      ),
+                      const SizedBox(width: 8),
+                      FilterChipWidget(
+                        label: 'Favorites',
+                        isSelected: filter == FilterType.favorites,
+                        onTap: () => wm.setFilter(FilterType.favorites),
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
           ),
-          // Список питомцев
           Expanded(
             child: EntityStateNotifierBuilder<List<Pet>>(
               listenableEntityState: wm.petsState,
-              loadingBuilder: (context, _) => const Center(
+              loadingBuilder: (_, __) => const Center(
                 child: CircularProgressIndicator(),
               ),
-              errorBuilder: (context, error, _) => Center(
+              errorBuilder: (_, error, __) => Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -78,7 +83,7 @@ class PetGalleryScreen extends ElementaryWidget<PetGalleryWM> {
                   ],
                 ),
               ),
-              builder: (context, pets) {
+              builder: (_, pets) {
                 if (pets?.isEmpty ?? true) {
                   return const Center(
                     child: Column(
